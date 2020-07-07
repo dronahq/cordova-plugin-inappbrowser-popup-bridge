@@ -1,10 +1,11 @@
 #!/usr/bin/env node
 
 var fs = require('fs'),
-    path = require('path');
+    path = require('path'),
+    q = require('q');
 
 module.exports = function (context) {
-    var deferral = context.requireCordovaModule('q').defer();
+    var deferral = q.defer();
 
     var toolsAttribute = "xmlns:tools=\"http://schemas.android.com/tools\"";
     var manifestOpen = "<manifest";
@@ -16,6 +17,12 @@ module.exports = function (context) {
     var platformRoot = path.join(projectRoot, 'platforms/android');
     var manifestPath = path.join(platformRoot, 'AndroidManifest.xml');
     //console.log("manifestPath: " + manifestPath);
+    if(!fs.existsSync(manifestPath)) {
+        //AndroidManifest is now under app directory
+        platformRoot = path.join(projectRoot, 'platforms/android/app/src/main');
+        // console.log(platformRoot);
+        manifestPath = path.join(platformRoot, 'AndroidManifest.xml');
+    }
 
     fs.readFile(manifestPath, function(err, manifest) {
         if(err || !manifest){
